@@ -1,68 +1,12 @@
 import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { useTable, usePagination, useExpanded, useSortBy, useRowSelect } from "react-table";
 import ClockLoader from "react-spinners/ClockLoader";
-import { css } from "@emotion/react";
+import IndeterminateCheckbox from "./checkBox"
+import TableFooter from "./tableFooter"
 import {
-  Pagination,
-  PagincationButtonContainer,
-  PaginationButton,
-  PaginationIndex,
-  RightIconSpan,
-  LeftIconSpan,
-  NextButtonIcon,
-  BackButtonIcon,
+  Button,
+  ClockLoaderCss
 } from "./index.style";
-import styled from "styled-components"
-
-const Button = styled.button`
-  display: inline-block;
-  color: palevioletred;
-  font-size: 1em;
-  margin: 1em;
-  padding: 0.25em 1em;
-  border: 2px solid palevioletred;
-  border-radius: 3px;
-  display: block;
-`;
-
-const override = css`
-  display: block;
-  margin: 0 auto;
-  border-color: red;
-`;
-let SelectedRows = [];
-const IndeterminateCheckbox = React.forwardRef(
-  ({ indeterminate,isNewRecord, ...rest }, ref) => {
-    const defaultRef = React.useRef()
-    const resolvedRef = ref || defaultRef
-    React.useEffect(() => {
-      resolvedRef.current.indeterminate = indeterminate;
-      resolvedRef.current.isNewRecord = true;
-    }, [resolvedRef, indeterminate, isNewRecord])
-    if (rest.props && resolvedRef.current)
-    {
-      resolvedRef.current.invoiceNumber = rest.props.original.invoiceNumber;
-      resolvedRef.current.checked = SelectedRows.includes(rest.props.original.invoiceNumber);
-    }
-    const handleChange = (row) => 
-    {
-          if (!row.currentTarget.checked) {
-            const keyIndex = SelectedRows.indexOf(row.currentTarget.invoiceNumber);
-            SelectedRows = [
-              ...SelectedRows.slice(0, keyIndex),
-              ...SelectedRows.slice(keyIndex + 1)
-            ];
-          } else {
-            SelectedRows.push(row.currentTarget.invoiceNumber);
-          }
-     }
-    return (
-      <>
-        <input type="checkbox" onChange={handleChange} ref={resolvedRef} {...rest} />
-      </>
-    )
-  }
-)
 
 const TableComponent = ({
   columns,
@@ -90,14 +34,9 @@ const TableComponent = ({
     canPreviousPage,
     canNextPage,
     pageOptions,
-    pageCount,
-    gotoPage,
     nextPage,
     previousPage,
-    setPageSize,
-    setHiddenColumns,
-    selectedFlatRows,
-    state: { pageIndex, pageSize, selectedRowIds, selection },
+    state: { pageIndex, pageSize },
   } = useTable(
     {
       columns,
@@ -123,9 +62,9 @@ const TableComponent = ({
       hooks.visibleColumns.push(columns => [
         {
           id: 'selection',
-          Header: ({ getToggleAllPageRowsSelectedProps }) => (
+          Header: () => (
             <div>
-              {/* <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} /> */}
+              
             </div>
           ),
           Cell: ({ row }) => (
@@ -151,7 +90,7 @@ const TableComponent = ({
           <ClockLoader
             color={"#000000"}
             loading={loading}
-            css={override}
+            css={ClockLoaderCss}
             size={150}
           />
         </div>
@@ -201,32 +140,15 @@ const TableComponent = ({
                 })}
               </tbody>
             </table>
-            {Boolean(isPaginated) && (
-              <Pagination>
-                <PaginationIndex>
-                  page {pageIndex + 1} of {pageOptions.length}
-                </PaginationIndex>{" "}
-                <PagincationButtonContainer>
-                  {canPreviousPage ? (
-                    <PaginationButton onClick={() => previousPage()}>
-                      <LeftIconSpan>
-                        <BackButtonIcon />
-                      </LeftIconSpan>
-                      Back
-                    </PaginationButton>
-                  ) : null}
-                  {canNextPage ? (
-                    <PaginationButton onClick={() => nextPage()}>
-                      Next{" "}
-                      <RightIconSpan>
-                        <NextButtonIcon />
-                      </RightIconSpan>
-                    </PaginationButton>
-                  ) : null}
-                </PagincationButtonContainer>
-              </Pagination>
-            )}
-             <Button onClick={async() => await sendInvoices(SelectedRows)}>Send Invoices</Button>
+          <TableFooter
+            isPaginated={isPaginated}
+            canNextPage={canNextPage}
+            canPreviousPage={canPreviousPage}
+            pageOptions={pageOptions}
+            previousPage={previousPage}
+            nextPage={nextPage}
+          />
+             <Button onClick={async() => await sendInvoices()}>Send Invoices</Button>
           </div>
         </div>
       )}
