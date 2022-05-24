@@ -1,4 +1,5 @@
 import Styled from "styled-components"
+import { css } from "@emotion/react";
 export const Table = Styled.table`
 width : 100%;
 padding : 0 10px;
@@ -146,3 +147,19 @@ border: solid 0.5px #000;
   padding: 3px;
   transform: rotate(-45deg);
 `
+export const Button = Styled.button`
+  display: inline-block;
+  color: palevioletred;
+  font-size: 1em;
+  margin: 1em;
+  padding: 0.25em 1em;
+  border: 2px solid palevioletred;
+  border-radius: 3px;
+  display: block;
+`;
+
+export const ClockLoaderCss = css`
+  display: block;
+  margin: 0 auto;
+  border-color: red;
+`;
